@@ -1,52 +1,82 @@
 import mongoose, { Schema, model, models, Types } from "mongoose";
-interface IImageVariant {
-  type: "SQUARE" | "WIDE" | "POTRAIT";
-  price: number;
-  license: "personal" | "commercial";
+import { ImageVariant, ImageVariantType } from "./Product";
+interface PopulatedUser {
+  _id: mongoose.Types.ObjectId;
+  email: string;
 }
 
-interface IProduct {
+interface PopulatedProduct {
+  _id: mongoose.Types.ObjectId;
   name: string;
-  description: string;
   imageUrl: string;
-  variants: IImageVariant[];
+}
+
+export interface IOrder {
+  userId: Types.ObjectId | PopulatedUser;
+  productId: Types.ObjectId | PopulatedProduct;
+  variant: ImageVariant;
+  razorpayOrderId: string;
+  razorpayPaymentId?: string;
+  amount: number;
+  status: "pending" | "completed" | "failed";
+  downloadUrl?: string;
+  previewUrl?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
-
-const imageVariantSchema = new Schema<IImageVariant>({
-  type: {
-    type: String,
-    required: true,
-    enum: ["SQUARE", "WIDE", "POTRAIT"],
-  },
-  price: {
-    type: Number,
-    required: true,
-    min: 0,
-  },
-  license: {
-    type: String,
-    required: true,
-    enum: ["personal", "commercial"],
-  },
-});
-
-const productSchema = new Schema<IProduct>(
+const orderSchema = new Schema(
   {
-    name: {
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    productId: {
+      type: Schema.Types.ObjectId,
+      ref: "Product",
+      required: true,
+    },
+    variant: {
+      type: {
+        type: String,
+        required: true,
+        enum: ["SQUARE", "WIDE", "POTRAIT"] as ImageVariantType[],
+        set: (v: string) => v.toUpperCase(),
+      },
+      price: {
+        type: Number,
+        required: true,
+      },
+      license: {
+        type: String,
+        required: true,
+        enum: ["personal", "commercial"],
+      },
+    },
+    razorpayOrderId: {
       type: String,
       required: true,
     },
-    description: {
+    razorpayPaymentId: {
       type: String,
       required: true,
     },
-    imageUrl: {
-      type: String,
+    amount: {
+      type: Number,
       required: true,
     },
-    variants: [imageVariantSchema],
+    status: {
+      type: String,
+      required: true,
+      enum: ["pending", "completed", "failed"],
+      default: "pending",
+    },
+    downloadUrl: {
+      type: String,
+    },
+    previewUrl: {
+      type: String,
+    },
   },
   {
     timestamps: true,
@@ -54,6 +84,6 @@ const productSchema = new Schema<IProduct>(
   }
 );
 
-const Product = models?.Product || model<IProduct>("Product", productSchema);
+const Order = models?.Order || model("Order", orderSchema);
 
-export default Product;
+export default Order;
