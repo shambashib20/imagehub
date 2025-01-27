@@ -6,7 +6,6 @@ const imagekit = new ImageKit({
   privateKey: process.env.PRIVATE_KEY!,
   urlEndpoint: process.env.NEXT_PUBLIC_URL_ENDPOINT!,
 });
-console.log("iiii", imagekit);
 
 export async function GET() {
   try {
