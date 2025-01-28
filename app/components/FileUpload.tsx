@@ -52,7 +52,15 @@ export default function FileUpload ({onSuccess}: {
 
                 return true;
               }}
-            />    
+            />   
+
+            {uploading && (
+                <p className="text-sm text-gray-500">Uploading...</p>
+            )} 
+
+            {error && (
+                <p className="text-sm text-red-500">{error}</p>
+            )}
         </div>
     )
 }
